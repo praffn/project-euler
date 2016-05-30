@@ -44,7 +44,7 @@ func main() {
 	var highestProduct int
 
 	for i := 0; i <= len(series)-consecutive; i++ {
-		p := util.Product(series[i : i+13])
+		p := util.Product(series[i : i+consecutive])
 		if p > highestProduct {
 			highestProduct = p
 		}
