@@ -27,37 +27,72 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"./util"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func readInput(filename string) (grid [][]int) {
-	file, err := os.Open(filename)
-	check(err)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		var row = []int{}
-		rowString := strings.Split(scanner.Text(), " ")
-		for _, i := range rowString {
-			j, err := strconv.Atoi(i)
-			check(err)
-			row = append(row, j)
-		}
-		grid = append(grid, row)
-	}
-	return grid
-}
-
 func main() {
-	grid := readInput("011-input.txt")
-	fmt.Println(grid)
+	fileBuf, err := ioutil.ReadFile("011-input.txt")
+	util.Check(err)
+
+	fileStr := string(fileBuf)
+	lines := strings.SplitN(fileStr, "\n", 20)
+	g := make([][]int, 20)
+	var columns []string
+
+	for i, v := range lines {
+		g[i] = make([]int, 20)
+		columns = strings.SplitN(v, " ", 20)
+		for j := range g[i] {
+			g[i][j], _ = strconv.Atoi(columns[j])
+		}
+	}
+
+	l, t, i, j := 0, 0, 0, 0
+
+	// top-left to bottom-right
+	for i = 0; i <= 16; i++ {
+		for j = 0; j <= 16; j++ {
+			t = g[i][j] * g[i+1][j+1] * g[i+2][j+2] * g[i+3][j+3]
+			if l < t {
+				l = t
+			}
+		}
+	}
+
+	// top-right to bottom-left
+	for i = 0; i <= 16; i++ {
+		for j = 3; j < 20; j++ {
+			t = g[i][j] * g[i+1][j-1] * g[i+2][j-2] * g[i+3][j-3]
+			if l < t {
+				l = t
+			}
+		}
+	}
+
+	// left
+	for i = 0; i <= 16; i++ {
+		for j = 0; j < 20; j++ {
+			t = g[i][j] * g[i+1][j] * g[i+2][j] * g[i+3][j]
+			if l < t {
+				l = t
+			}
+		}
+	}
+
+	// bottom
+	for i = 0; i < 20; i++ {
+		for j = 0; j <= 16; j++ {
+			t = g[i][j] * g[i][j+1] * g[i][j+2] * g[i][j+3]
+			if l < t {
+				l = t
+			}
+		}
+	}
+
+	fmt.Println(l)
 }
